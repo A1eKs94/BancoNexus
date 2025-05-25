@@ -5,6 +5,7 @@ import { realizarTransaccion, obtenerCuenta } from '../api'; // ajusta ruta si e
 const Retiro = () => {
   const [numeroCuenta, setNumeroCuenta] = useState('');
   const [monto, setMonto] = useState('');
+  const [sucursal, setSucursal] = useState('CDMX');
   const [mensaje, setMensaje] = useState(null);
   const [error, setError] = useState(null);
   const [cuentas, setCuentas] = useState([]);
@@ -33,23 +34,25 @@ const Retiro = () => {
 
     const cuentaObj = cuentas.find(c => c.cuenta === numeroCuenta);
     if (!cuentaObj) {
-      setError("Número de cuenta no encontrado.");
+      setError("Número de cuenta no encontrada.");
       return;
     }
 
     try {
       const data = {
-        cuenta: cuentaObj._id,  // ObjectId para backend
-        tipo: 'retiro',         // Cambiar el tipo a retiro
+        cuenta: cuentaObj._id,
+        tipo: 'retiro',
         cantidad: Number(monto),
+        sucursal,
+        fecha: new Date().toISOString()
       };
 
       await realizarTransaccion(data);
       setMensaje("Retiro realizado con éxito.");
       setNumeroCuenta('');
       setMonto('');
+      setSucursal('CDMX');
     } catch (err) {
-      // Aquí puede ser por saldo insuficiente o error general
       setError(err.message || "Error al realizar el retiro.");
       console.error(err);
     }
@@ -60,6 +63,7 @@ const Retiro = () => {
       <h3>Retiro de Cuenta</h3>
       {mensaje && <Alert variant="success">{mensaje}</Alert>}
       {error && <Alert variant="danger">{error}</Alert>}
+
       <Form onSubmit={handleSubmit} className="mt-3">
         <Form.Group className="mb-3">
           <Form.Label>Número de Cuenta</Form.Label>
@@ -79,6 +83,28 @@ const Retiro = () => {
             value={monto}
             onChange={(e) => setMonto(e.target.value)}
             min="1"
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Sucursal</Form.Label>
+          <Form.Select
+            value={sucursal}
+            onChange={(e) => setSucursal(e.target.value)}
+          >
+            <option value="CDMX">CDMX</option>
+            <option value="GDL">GDL</option>
+            <option value="MTY">Monterrey</option>
+            <option value="QRO">Querétaro</option>
+          </Form.Select>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Fecha (automática)</Form.Label>
+          <Form.Control
+            type="text"
+            value={new Date().toLocaleString()}
+            disabled
           />
         </Form.Group>
 

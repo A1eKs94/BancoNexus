@@ -30,24 +30,27 @@ const HistorialTransacciones = () => {
             <th>Tipo</th>
             <th>Número de Cuenta</th>
             <th>Monto</th>
+            <th>Sucursal</th>
           </tr>
         </thead>
         <tbody>
-          {transacciones.length === 0 && (
+          {transacciones.length === 0 ? (
             <tr>
-              <td colSpan="4" className="text-center">
+              <td colSpan="5" className="text-center">
                 No hay transacciones registradas.
               </td>
             </tr>
+          ) : (
+            transacciones.map((tx) => (
+              <tr key={tx._id}>
+                <td>{new Date(tx.fecha).toLocaleString()}</td>
+                <td>{tx.tipo.charAt(0).toUpperCase() + tx.tipo.slice(1)}</td>
+                <td>{tx.cuenta?.cuenta || "N/A"}</td>
+                <td>${tx.cantidad}</td>
+                <td>{tx.sucursal || "Desconocida"}</td>
+              </tr>
+            ))
           )}
-          {transacciones.map((tx) => (
-            <tr key={tx._id}>
-              <td>{new Date(tx.fecha).toLocaleDateString()}</td>
-              <td>{tx.tipo.charAt(0).toUpperCase() + tx.tipo.slice(1)}</td>
-              <td>{tx.cuenta?.cuenta || "N/A"}</td>
-              <td>${tx.cantidad}</td>
-            </tr>
-          ))}
         </tbody>
       </Table>
     </div>
