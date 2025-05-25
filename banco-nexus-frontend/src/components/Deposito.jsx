@@ -10,7 +10,6 @@ const Deposito = () => {
   const [error, setError] = useState(null);
   const [cuentas, setCuentas] = useState([]);
 
-  // Cargar cuentas disponibles
   useEffect(() => {
     const cargarCuentas = async () => {
       try {

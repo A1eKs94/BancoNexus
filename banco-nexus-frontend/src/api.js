@@ -13,7 +13,7 @@ export async function crearCliente(data) {
 // Obtener cuenta
 
 export const obtenerCuenta = async () => {
-  const response = await fetch("http://localhost:3000/cuentas"); // <-- asegúrate de que sea /cuenta
+  const response = await fetch("http://localhost:3000/cuentas");
   if (!response.ok) throw new Error("Error al obtener las cuentas");
   return await response.json();
 };

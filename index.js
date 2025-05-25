@@ -14,7 +14,7 @@ const Cuenta = require("./models/Cuenta");
 const Transaccion = require("./models/Transaccion");
 
 app.get("/", (req, res) => {
-  res.redirect("http://localhost:5173"); // Cambia si tu Vite usa otro puerto
+  res.redirect("http://localhost:5173");
 });
 // -------------------- CLIENTE --------------------
 
@@ -26,7 +26,7 @@ app.post("/cliente", async (req, res) => {
 
 app.get("/clientes", async (req, res) => {
   try {
-    const clientes = await User.find(); // obtiene todos los usuarios
+    const clientes = await User.find();
     res.send(clientes);
   } catch (error) {
     res.status(500).send({ message: "Error al obtener clientes", error });
@@ -67,10 +67,15 @@ app.get("/cuenta/:id", async (req, res) => {
 
 app.post("/transaccion", async (req, res) => {
   try {
-    const { cuenta, tipo, cantidad } = req.body;
+    const { cuenta, tipo, cantidad, sucursal } = req.body;
 
-    // Crear transacción
-    const transaccion = new Transaccion({ cuenta, tipo, cantidad });
+    // Validación opcional
+    if (!sucursal) {
+      return res.status(400).send({ message: "La sucursal es obligatoria." });
+    }
+
+    // Crear transacción con sucursal
+    const transaccion = new Transaccion({ cuenta, tipo, cantidad, sucursal });
     await transaccion.save();
 
     // Obtener la cuenta
@@ -98,19 +103,17 @@ app.post("/transaccion", async (req, res) => {
       .status(500)
       .send({ message: "Error al realizar la transacción", error });
   }
+});
 
-  app.get("/transacciones", async (req, res) => {
-    try {
-      const transacciones = await Transaccion.find()
-        .populate({ path: "cuenta", select: "cuenta" }) // solo el número de cuenta
-        .sort({ fecha: -1 }); // ordenar por fecha descendente
-      res.send(transacciones);
-    } catch (error) {
-      res
-        .status(500)
-        .send({ message: "Error al obtener transacciones", error });
-    }
-  });
+app.get("/transacciones", async (req, res) => {
+  try {
+    const transacciones = await Transaccion.find()
+      .populate({ path: "cuenta", select: "cuenta" })
+      .sort({ fecha: -1 });
+    res.send(transacciones);
+  } catch (error) {
+    res.status(500).send({ message: "Error al obtener transacciones", error });
+  }
 });
 
 app.get("/transaccion/:id", async (req, res) => {
