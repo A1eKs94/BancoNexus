@@ -92,7 +92,7 @@ const Deposito = () => {
             value={sucursal}
             onChange={(e) => setSucursal(e.target.value)}
           >
-            <option value="CDMX">CDMX</option>
+          <option value="CDMX">CDMX</option>
             <option value="GDL">GDL</option>
             <option value="MTY">Monterrey</option>
             <option value="QRO">Querétaro</option>
