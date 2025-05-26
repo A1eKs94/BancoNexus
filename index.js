@@ -125,6 +125,55 @@ app.get("/transaccion/:id", async (req, res) => {
   res.send(transaccion);
 });
 
+app.post("/transferencia", async (req, res) => {
+  try {
+    const { cuentaOrigen, cuentaDestino, monto, sucursal } = req.body;
+
+    const origen = await Cuenta.findOne({ cuenta: cuentaOrigen });
+    const destino = await Cuenta.findOne({ cuenta: cuentaDestino });
+
+    if (!origen || !destino) {
+      return res
+        .status(404)
+        .send({ message: "Cuenta origen o destino no encontrada" });
+    }
+
+    if (origen.saldo < monto) {
+      return res
+        .status(400)
+        .send({ message: "Saldo insuficiente en cuenta origen" });
+    }
+
+    // Actualiza saldos
+    origen.saldo -= monto;
+    destino.saldo += monto;
+
+    await origen.save();
+    await destino.save();
+
+    // Guarda dos transacciones: retiro y depósito
+    await Transaccion.create({
+      cuenta: origen._id,
+      tipo: "transferencia-salida",
+      cantidad: monto,
+      sucursal,
+    });
+
+    await Transaccion.create({
+      cuenta: destino._id,
+      tipo: "transferencia-entrada",
+      cantidad: monto,
+      sucursal,
+    });
+
+    res.status(201).send({ message: "Transferencia exitosa" });
+  } catch (error) {
+    res
+      .status(500)
+      .send({ message: "Error al procesar la transferencia", error });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);
 });
